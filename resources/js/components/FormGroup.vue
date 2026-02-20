@@ -37,7 +37,7 @@
 
           <p class="text-80 grow px-4">
             <span class="mr-3 font-semibold">#{{ index + 1 }}</span>
-            {{ group.title }}
+            {{ group.title }}{{ displayPreview }}
           </p>
 
           <div class="flex" v-if="!readonly">
@@ -111,6 +111,7 @@
           :mode="mode"
           :show-help-text="item.helpText != null"
           :class="{ 'remove-bottom-border': index == group.fields.length - 1 }"
+          @change="handleFieldChanged($event, item)"
         />
       </div>
     </div>
@@ -138,10 +139,21 @@ export default {
       removeMessage: false,
       collapsed: this.group.collapsed,
       readonly: this.group.readonly,
+      collapsedPreview: null,
     };
   },
 
   computed: {
+    collapsedPreviewAttribute() {
+      const layout = (this.field.layouts || []).find(
+        (l) => l.name === this.group.name
+      );
+      return layout ? layout.collapsedPreviewAttribute : null;
+    },
+    displayPreview() {
+      if (this.collapsedPreview == null) return "";
+      return ": " + this.truncate(String(this.collapsedPreview), 30);
+    },
     titleStyle() {
       let classes = [
         "border-t",
@@ -180,6 +192,15 @@ export default {
 
       return classes;
     },
+  },
+
+  mounted() {
+    (this.group.fields || []).forEach((field) => {
+      const attribute = (field.attribute || "").split("__").pop();
+      if (this.collapsedPreviewAttribute && attribute === this.collapsedPreviewAttribute) {
+        this.collapsedPreview = field.value;
+      }
+    });
   },
 
   methods: {
@@ -227,6 +248,17 @@ export default {
      */
     collapse() {
       this.collapsed = true;
+    },
+
+    truncate(value, length) {
+      if (!value || value.length <= length) return value || "";
+      return value.substring(0, length) + "...";
+    },
+
+    handleFieldChanged(event, item) {
+      if (item.attribute.split("__").pop() === this.collapsedPreviewAttribute) {
+        this.collapsedPreview = event.target ? event.target.value : event;
+      }
     },
   },
 };

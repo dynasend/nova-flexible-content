@@ -67,6 +67,13 @@ class Layout implements LayoutInterface, JsonSerializable, ArrayAccess, Arrayabl
     protected $fields;
 
     /**
+     * The layout's preview attribute for collapsed state
+     *
+     * @var string|null
+     */
+    protected $collapsedPreviewAttribute;
+
+    /**
      * The attributes that should be cast to native types.
      *
      * @var array
@@ -179,6 +186,16 @@ class Layout implements LayoutInterface, JsonSerializable, ArrayAccess, Arrayabl
     public function name()
     {
         return $this->name;
+    }
+
+    /**
+     * Retrieve the layout's collapsed preview attribute
+     *
+     * @return string|null
+     */
+    public function collapsedPreviewAttribute()
+    {
+        return $this->collapsedPreviewAttribute ?? null;
     }
 
     /**
@@ -693,6 +710,7 @@ class Layout implements LayoutInterface, JsonSerializable, ArrayAccess, Arrayabl
             'name' => $this->name,
             'title' => $this->title,
             'fields' => $this->fields->jsonSerialize(),
+            'collapsedPreviewAttribute' => $this->collapsedPreviewAttribute(),
             'limit' => $this->limit,
         ];
     }
